@@ -34,6 +34,53 @@ namespace Crapfixer
         private void MainForm_Shown(object sender, EventArgs e)
         {
             InitializeUI();
+            LoadWindowSettings();
+        }
+
+        private void LoadWindowSettings()
+        {
+            try
+            {
+                if (File.Exists(iniPath))
+                {
+                    var ini = new IniFile(iniPath);
+                    this.WindowState = (FormWindowState)Enum.Parse(typeof(FormWindowState),
+                        ini.Read("WindowState", "Settings", "Normal"));
+                    if (this.WindowState == FormWindowState.Normal)
+                    {
+                        this.Size = new Size(
+                            int.Parse(ini.Read("Width", "Settings", this.Width.ToString())),
+                            int.Parse(ini.Read("Height", "Settings", this.Height.ToString())));
+                        this.Location = new Point(
+                            int.Parse(ini.Read("Left", "Settings", this.Left.ToString())),
+                            int.Parse(ini.Read("Top", "Settings", this.Top.ToString())));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error or use default settings
+            }
+        }
+
+        private void SaveWindowSettings()
+        {
+            try
+            {
+                var ini = new IniFile(iniPath);
+                ini.Write("WindowState", this.WindowState.ToString(), "Settings");
+                if (this.WindowState == FormWindowState.Normal)
+                {
+                    ini.Write("Width", this.Size.Width.ToString(), "Settings");
+                    ini.Write("Height", this.Size.Height.ToString(), "Settings");
+                    ini.Write("Left", this.Left.ToString(), "Settings");
+                    ini.Write("Top", this.Top.ToString(), "Settings");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error
+            }
         }
 
         private void InitializeUI()

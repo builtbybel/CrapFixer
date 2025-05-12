@@ -1,0 +1,5 @@
+3DViewer, Alarms, Calendar, Camera, CandyCrush, Copilot, DevHome, Facebook,
+Feedback, FeedbackHub, GetHelp, GetStarted, Groove, Instagram, Mail, Maps,
+Messaging, Movies, Netflix, News, Office, OneDrive, OneNote, Paint3D, Phone,
+Print3D, Skype, Solitaire, Spotify, StickyNotes, TikTok, ToDo, TV, Twitter,
+VoiceRecorder, Wallet, Weather, Whiteboard, YourPhone, ZuneMusic, ZuneVideo
