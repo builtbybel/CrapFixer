@@ -1,0 +1,32 @@
+[ChrisTitusApp]
+description=Chris Titus Tech's Windows Utility - Install Programs, Tweaks, Fixes, and Updates
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/ChrisTitusApp.ps1
+
+[Create Restore Point]
+description=Creates a system restore point to allow recovery before major changes are applied.
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/Create Restore Point.ps1
+
+[Remove default apps]
+description=Removes preinstalled Windows default apps to declutter the system.
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/Remove default apps.ps1
+
+[Remove Windows AI]
+description=Disables and removes AI-related features and integrations in Windows.
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/Remove Windows AI.ps1
+
+[Restart Explorer]
+description=Restarts the Windows Explorer process to apply changes or recover from crashes.
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/Restart Explorer.ps1
+
+[Restore all built-in apps]
+description=Restores all removed default Windows apps to their original state.
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/Restore all built-in apps.ps1
+
+[Uninstall OneDrive]
+description=Completely uninstalls Microsoft OneDrive from the system.
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/Uninstall OneDrive.ps1
+
+[CFEnhancer]
+description=Enhanced bloatware detection list used instead of the internal signature. If present in the plugins folder, it overrides the built-in bloatware detection mechanism.
+url=https://raw.githubusercontent.com/builtbybel/Crapfixer/refs/heads/main/plugins/CFEnhancer.txt
+

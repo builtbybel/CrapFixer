@@ -5,60 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crapfixer Update Check</title>
     <style>
+      :root {
+        --bg: #f3f6fd;
+        --primary: #0067c0;
+        --text: #1b1b1b;
+        --card-bg: #ffffffcc;
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        --radius: 20px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f4f6f8;
-        color: #333;
+        font-family: "Segoe UI Variable", "Segoe UI", Tahoma, sans-serif;
+        background: linear-gradient(145deg, #ecf0f7, #f8faff);
+        color: var(--text);
         padding: 2rem;
-        max-width: 600px;
-        margin: auto;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
       }
+
       h1 {
-        color: #2c3e50;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
+
       #status {
-        background: #fff;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        margin-top: 1rem;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 500px;
+        font-size: 1.1rem;
       }
+
       a {
-        color: #0077cc;
+        color: var(--primary);
         text-decoration: none;
+        font-weight: 500;
       }
+
       a:hover {
         text-decoration: underline;
       }
+
       .donate {
-        margin-top: 3rem;
-        padding: 1rem;
-        background-color: #e8f5e9;
-        border-left: 5px solid #4caf50;
-        border-radius: 5px;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: #e7f5ec;
+        border-left: 6px solid #4caf50;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        max-width: 500px;
+        width: 100%;
       }
+
       .donate strong {
         display: block;
+        font-size: 1.2rem;
         margin-bottom: 0.5rem;
       }
+
       .donate a {
-        margin-right: 1rem;
-        display: inline-block;
-      }
-      .project-follow {
         margin-top: 1rem;
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        background-color: #4caf50;
+        color: white;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+      }
+
+      .donate a:hover {
+        background-color: #388e3c;
+      }
+
+      .project-follow {
+        margin-top: 2rem;
         text-align: center;
       }
+
       .project-follow a {
-        padding: 10px 20px;
-        background-color: #24292f; /* GitHub Dark Blue */
+        padding: 0.8rem 1.5rem;
+        background: #24292f;
         color: white;
-        border-radius: 5px;
+        border-radius: var(--radius);
         text-decoration: none;
-        font-size: 16px;
+        font-size: 1rem;
+        transition: background 0.3s ease;
+        display: inline-block;
       }
+
       .project-follow a:hover {
-        background-color: #0366d6; /* GitHub Blue */
+        background: #0366d6;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 1rem;
+        }
+
+        #status,
+        .donate {
+          padding: 1rem;
+        }
       }
     </style>
   </head>
@@ -68,26 +129,18 @@
 
     <div class="donate">
       <strong>💖 Support Crapfixer</strong>
-      Every donation helps me provide more updates. - Thanks, Belim 🙏
+      Every donation helps me provide more updates. – Thanks, Belim 🙏
       <br /><br />
-      <a
-        href="https://www.paypal.com/donate/?hosted_button_id=M9DW4VNKH9ECQ"
-        target="_blank"
-        >💸 Donate via PayPal</a
-      >
-      <a href="https://ko-fi.com/builtbybel" target="_blank"
-        >☕ Buy me a Ko-fi</a
-      >
+      <a href="https://www.paypal.com/donate/?hosted_button_id=M9DW4VNKH9ECQ" target="_blank">💸 PayPal</a>
+      <a href="https://ko-fi.com/builtbybel" target="_blank" style="background-color: #ff5f5f;">☕ Ko-fi</a>
     </div>
 
     <div class="project-follow">
-      <a href="https://github.com/builtbybel/Crapfixer" target="_blank"
-        >🐙 Follow the Project on GitHub</a
-      >
+      <a href="https://github.com/builtbybel/Crapfixer" target="_blank">🐙 View on GitHub</a>
     </div>
 
     <script>
-      const latestVersion = "0.55.160";
+      const latestVersion = "1.0.220";
 
       function compareVersions(v1, v2) {
         const a = v1.split(".").map(Number);

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crapfixer Log Analyzer</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; background: #f4f4f4; }
+    textarea { width: 100%; height: 200px; font-family: monospace; margin-bottom: 1rem; }
+    .result { background: white; border: 1px solid #ddd; padding: 1rem; }
+    .issue { color: #c62828; margin-bottom: 0.5rem; }
+    .key { font-family: monospace; color: #37474f; }
+    .plugin { color: #1565c0; margin-bottom: 0.3rem; }
+  </style>
+</head>
+<body>
+  <h1>🧠 Crapfixer Log Analyzer</h1>
+  <p>
+    To get started, please follow these simple steps:
+    <ol>
+      <li>Run the analysis in your Crapfixer app and <strong>export or copy the full log</strong> from the results window.</li>
+      <li>Come back here and <strong>paste the entire log</strong> into the textbox below.</li>
+      <li>Click the <strong>🔍 Analyze</strong> button to see a detailed breakdown of issues, registry keys, and plugin files.</li>
+    </ol>
+  </p>
+  <textarea id="logInput" placeholder="Paste your Crapfixer log here..."></textarea>
+  <button onclick="analyzeLog()">🔍 Analyze</button>
+  <div class="result" id="output"></div>
+
+  <script>
+    function analyzeLog() {
+      const log = document.getElementById('logInput').value;
+      const output = document.getElementById('output');
+      const lines = log.split('\n');
+
+      const issues = lines.filter(line => line.startsWith('❌'));
+      const regKeys = lines.filter(line => line.includes('HKEY_') || line.includes('➤'));
+      const plugins = lines.filter(line => line.match(/Plugin ready: .*\.ps1/i));
+
+      output.innerHTML = `
+        <h3>🧪 Found ${issues.length} Issues</h3>
+        <div>${issues.map(i => `<div class="issue">${i}</div>`).join('')}</div>
+        <hr>
+        <h3>🗂 Registry Keys</h3>
+        <div>${regKeys.map(k => `<div class="key">${k}</div>`).join('')}</div>
+        <hr>
+        <h3>📦 Loaded Plugins</h3>
+        <div>${plugins.map(p => `<div class="plugin">${p}</div>`).join('')}</div>
+      `;
+    }
+  </script>
+</body>
+</html>

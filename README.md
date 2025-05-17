@@ -16,24 +16,27 @@ While cleaning up my GitHub (30+ repos down to 20 now), I also cleaned up thousa
 
 ![Fixing the crap](https://github.com/user-attachments/assets/cb568d53-113e-4a14-8c88-30e822b45bd3)
 
-## Features
+## 🚀 How to Use Crapfixer
 
-- **Debloat Windows:** Say goodbye to unwanted pre-installed apps.
-- **Enhance Privacy:** Take control of data collection settings.
-- **Streamline Performance:** Tweak your system for a smoother experience.
-- **User-Friendly & Safe:** Classic UI with reversible changes for peace of mind.
+1. **Launch the Tool**  
+   All optimization options are enabled by default – no need to tweak anything.
 
-## How to Use Crapfixer
+2. **Analyze Your System**  
+   Click **"Analyze"** to scan your system based on the selected settings.  
+   - **Red** items = Recommended fixes  
+   - **Gray** items = Already optimized
 
-Using Crapfixer is straightforward:
+3. **Apply Fixes**  
+   Smash the **"Run CFixer!"** button to apply the recommended tweaks.
 
-1. **Launch the Tool:** All optimization options are enabled by default to save you time.
-2. **Analyze Your System:** Simply click the "Analyze" button. Crapfixer will check your system against the selected options.
-   - Items marked in **red** are recommended fixes.
-   - Items in **gray** are already configured correctly.
-3. **Apply Fixes:** Then just smash the "Run CFixer!" button and you're good to go.
+4. **🔍 Optional: Review the Log**  
+   Still unsure about the results?  
+   → Upload your log to the [Online Log Analyzer](https://builtbybel.github.io/Crapfixer/log-analyzer/index.html)  
+   → Get a breakdown of the changes  
+   → Share the link for feedback if needed
 
-_For full functionality, it's recommended to run the app as Administrator, since certain features - like editing registry values under HKEY_LOCAL_MACHINE - require elevated permissions._
+> ⚠️ **Tip:** For full functionality, run Crapfixer as **Administrator**.  
+> Some fixes (like registry edits under `HKEY_LOCAL_MACHINE`) need elevated permissions.
 
 ## System Requirements
 
