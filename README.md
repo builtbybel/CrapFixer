@@ -22,7 +22,7 @@ While cleaning up my GitHub (30+ repos down to 20 now), I also cleaned up thousa
   <summary>💬 A personal note from the developer</summary>
 
 If you're curious about the personal story behind this project and others...
-👉 [Read the full story here](https://github.com/Belim/support/blob/main/STORY.md)
+👉 [Read the full story here](STORY.md)
 
 </details>
 
