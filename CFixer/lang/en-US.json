@@ -71,11 +71,11 @@
     "feature.name.ui.hide_taskbar_task_view_button":  "Hide Task view button on taskbar",
     "feature.name.ui.show_windows11_full_context_menu":  "Show Full context menus in Windows 11",
     "main.appsPlaceholder":  "No analysis yet",
-    "main.btnAnalyze":  "\u0026Analyze",
-    "main.btnFix":  "Run \u0026Fixer",
-    "main.btnFixer":  "\u0026Fixer",
-    "main.btnRestore":  "\u0026Restore",
-    "main.btnTools":  "\u0026Tools",
+    "main.btnAnalyze":  "&Analyze",
+    "main.btnFix":  "Run &Fixer",
+    "main.btnFixer":  "&Fixer",
+    "main.btnRestore":  "&Restore",
+    "main.btnTools":  "&Tools",
     "main.ctxAnalyze":  "Analyze",
     "main.ctxFix":  "Fix",
     "main.ctxHelp":  "Help",
@@ -165,3 +165,4 @@
     "vive.statusPartiallyEnabled":  "Partially Enabled",
     "vive.statusUnknown":  "Unknown"
 }
+
