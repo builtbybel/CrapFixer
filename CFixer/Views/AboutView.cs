@@ -1,17 +1,21 @@
 ﻿using CrapFixer;
+using CFixer;
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace Views
 {
-    public partial class AboutView : UserControl
+    public partial class AboutView : UserControl, ILocalizedControl
 
     {
         public AboutView()
         {
             InitializeComponent();
             InitializeUI();
+            ApplyLocalization();
+            LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
+            Disposed += AboutView_Disposed;
         }
 
         private void InitializeUI()
@@ -33,6 +37,38 @@ namespace Views
             comboBoxCurrency.SelectedIndex = 0;
         }
 
+        private void ApplyLocalization()
+        {
+            label1.Text = LocalizationManager.T("about.description");
+            btnDonate.Text = LocalizationManager.T("about.donate");
+            lblCopyright.Text = LocalizationManager.T("about.copyright");
+        }
+
+        public void RefreshLocalization()
+        {
+            ApplyLocalization();
+        }
+
+        private void LocalizationManager_LanguageChanged(object sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(RefreshLocalization));
+            }
+            else
+            {
+                RefreshLocalization();
+            }
+        }
+
+        private void AboutView_Disposed(object sender, EventArgs e)
+        {
+            LocalizationManager.LanguageChanged -= LocalizationManager_LanguageChanged;
+            Disposed -= AboutView_Disposed;
+        }
+
         private void linkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("https://github.com/builtbybel/CrapFixer/releases");
@@ -45,12 +81,12 @@ namespace Views
 
             if (string.IsNullOrEmpty(amount) || string.IsNullOrEmpty(currency))
             {
-                MessageBox.Show("Please select an amount and a currency.");
+                MessageBox.Show(LocalizationManager.T("about.donationValidation"));
                 return;
             }
 
             string email = "belim@builtbybel.com";
-            string purpose = Uri.EscapeDataString("Support Development of the CrapFixer app.");
+            string purpose = Uri.EscapeDataString(LocalizationManager.T("about.donationPurpose"));
 
             string returnUrl = Uri.EscapeDataString("https://github.com/Belim/support");
             string cancelUrl = Uri.EscapeDataString("https://github.com/builtbybel/CrapFixer");

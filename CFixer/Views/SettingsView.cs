@@ -7,13 +7,19 @@ using System.Windows.Forms;
 
 namespace CFixer.Views
 {
-    public partial class SettingsView : UserControl
+    public partial class SettingsView : UserControl, ILocalizedControl
     {
+        private bool _isInitializingLanguage;
+
         public SettingsView()
         {
             InitializeComponent();
+            PopulateLanguageOptions(LocalizationManager.CurrentLanguageCode);
             LoadSettings();
+            ApplyLocalization();
             CheckIfIconsInstalled();
+            LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
+            Disposed += SettingsView_Disposed;
         }
 
         /// <summary>
@@ -27,6 +33,7 @@ namespace CFixer.Views
     };
 
             IniStateManager.SaveViewSettings("SETTINGS", settings);
+            IniStateManager.SaveViewStringSetting("SETTINGS", "Language", GetSelectedLanguageCode());
         }
 
         /// <summary>
@@ -36,6 +43,89 @@ namespace CFixer.Views
         {
             var settings = IniStateManager.LoadViewSettings("SETTINGS");
             checkSaveToINI.Checked = settings.GetValueOrDefault(nameof(checkSaveToINI), false);
+
+            var savedLanguage = IniStateManager.LoadViewStringSetting("SETTINGS", "Language", LocalizationManager.CurrentLanguageCode);
+            SetLanguageSelection(savedLanguage);
+        }
+
+        private void ApplyLocalization()
+        {
+            button1.Text = LocalizationManager.T("settings.sectionBasic");
+            checkSaveToINI.Text = LocalizationManager.T("settings.saveIni");
+            checkBox2.Text = LocalizationManager.T("settings.superPlugins");
+            checkInstallIcons.Text = LocalizationManager.T("settings.installIcons");
+            labelLanguage.Text = LocalizationManager.T("settings.languageLabel");
+
+            PopulateLanguageOptions(GetSelectedLanguageCode());
+        }
+
+        public void RefreshLocalization()
+        {
+            ApplyLocalization();
+        }
+
+        private void PopulateLanguageOptions(string selectedLanguageCode)
+        {
+            _isInitializingLanguage = true;
+            try
+            {
+                comboLanguage.Items.Clear();
+
+                var languages = LocalizationManager.GetAvailableLanguages();
+                var options = languages
+                    .OrderBy(l => l.Key.Equals(LocalizationManager.DefaultLanguage, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                    .ThenBy(l => l.Key, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                foreach (var option in options)
+                {
+                    comboLanguage.Items.Add(option);
+                }
+
+                comboLanguage.DisplayMember = "Value";
+                comboLanguage.ValueMember = "Key";
+
+                var targetCode = languages.ContainsKey(selectedLanguageCode)
+                    ? selectedLanguageCode
+                    : LocalizationManager.DefaultLanguage;
+
+                int index = options.FindIndex(o => o.Key == targetCode);
+                comboLanguage.SelectedIndex = index >= 0 ? index : (options.Count > 0 ? 0 : -1);
+            }
+            finally
+            {
+                _isInitializingLanguage = false;
+            }
+        }
+
+        private string GetSelectedLanguageCode()
+        {
+            if (comboLanguage.SelectedItem is KeyValuePair<string, string> selected)
+            {
+                return selected.Key;
+            }
+
+            return LocalizationManager.DefaultLanguage;
+        }
+
+        private void SetLanguageSelection(string languageCode)
+        {
+            var languages = LocalizationManager.GetAvailableLanguages();
+            var normalizedCode = languages.ContainsKey(languageCode)
+                ? languageCode
+                : LocalizationManager.DefaultLanguage;
+
+            for (int i = 0; i < comboLanguage.Items.Count; i++)
+            {
+                var option = (KeyValuePair<string, string>)comboLanguage.Items[i];
+                if (option.Key == normalizedCode)
+                {
+                    comboLanguage.SelectedIndex = i;
+                    return;
+                }
+            }
+
+            comboLanguage.SelectedIndex = 0;
         }
 
         private void SettingsView_Leave(object sender, EventArgs e)
@@ -56,12 +146,11 @@ namespace CFixer.Views
         private async void checkInstallIcons_CheckedChanged(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-            "By default, buttons have no icons to reduce app size. Enable this to download and display navigation icons." +
-            "\nWould you like to install it now?",
-                                    "Icons Pack Detected",
-                                    MessageBoxButtons.YesNo,
-                                    MessageBoxIcon.Information
-                                    );
+                LocalizationManager.T("settings.iconPrompt"),
+                LocalizationManager.T("settings.iconPromptTitle"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Information
+            );
 
             if (result == DialogResult.Yes)
             {
@@ -73,9 +162,9 @@ namespace CFixer.Views
 
                     string[] iconFiles = new string[]
                     {
-                "fixer.png",
-                "options.png",
-                "restore.png"
+                        "fixer.png",
+                        "options.png",
+                        "restore.png"
                     };
 
                     string baseUrl = "https://raw.githubusercontent.com/builtbybel/CrapFixer/main/icons/";
@@ -91,8 +180,8 @@ namespace CFixer.Views
                     }
 
                     MessageBox.Show(
-                        "All icons have been successfully installed in the 'icons' folder!\n\n💖 Love CrapFixer? Consider supporting me with a small donation to keep this tool alive and improving!",
-                        "Icons Installed",
+                        LocalizationManager.T("settings.iconInstalled"),
+                        LocalizationManager.T("settings.iconInstalledTitle"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
                     );
@@ -102,12 +191,52 @@ namespace CFixer.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("❌ An error occurred while downloading the icons:\n" + ex.Message,
-                        "Download Failed",
+                    MessageBox.Show(
+                        LocalizationManager.T("settings.iconDownloadFailed") + ex.Message,
+                        LocalizationManager.T("settings.iconDownloadFailedTitle"),
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                        MessageBoxIcon.Error
+                    );
                 }
             }
+        }
+
+        private void comboLanguage_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_isInitializingLanguage)
+            {
+                return;
+            }
+
+            var selectedLanguage = GetSelectedLanguageCode();
+            if (selectedLanguage == LocalizationManager.CurrentLanguageCode)
+            {
+                return;
+            }
+
+            LocalizationManager.SetLanguage(selectedLanguage);
+            SaveSettings();
+            ApplyLocalization();
+        }
+
+        private void LocalizationManager_LanguageChanged(object sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(RefreshLocalization));
+            }
+            else
+            {
+                RefreshLocalization();
+            }
+        }
+
+        private void SettingsView_Disposed(object sender, EventArgs e)
+        {
+            LocalizationManager.LanguageChanged -= LocalizationManager_LanguageChanged;
+            Disposed -= SettingsView_Disposed;
         }
     }
 }

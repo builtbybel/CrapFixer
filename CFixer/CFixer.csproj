@@ -50,6 +50,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="Windows">
       <HintPath>..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\Windows.winmd</HintPath>
@@ -88,7 +89,9 @@
     <Compile Include="Helpers\OSHelper.cs" />
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="ILocalizedControl.cs" />
     <Compile Include="IniStateManager.cs" />
+    <Compile Include="LocalizationManager.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -207,6 +210,12 @@
     <Content Include="AppIcon.ico" />
     <None Include="AppIcon32.png" />
     <None Include="AppIcon.png" />
+    <Content Include="lang\en-US.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lang\zh-CN.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

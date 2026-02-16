@@ -32,6 +32,8 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.checkInstallIcons = new System.Windows.Forms.CheckBox();
+            this.labelLanguage = new System.Windows.Forms.Label();
+            this.comboLanguage = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // checkSaveToINI
@@ -83,11 +85,32 @@
             this.checkInstallIcons.UseVisualStyleBackColor = true;
             this.checkInstallIcons.CheckedChanged += new System.EventHandler(this.checkInstallIcons_CheckedChanged);
             // 
+            // labelLanguage
+            // 
+            this.labelLanguage.AutoSize = true;
+            this.labelLanguage.Location = new System.Drawing.Point(15, 141);
+            this.labelLanguage.Name = "labelLanguage";
+            this.labelLanguage.Size = new System.Drawing.Size(55, 13);
+            this.labelLanguage.TabIndex = 5;
+            this.labelLanguage.Text = "Language";
+            // 
+            // comboLanguage
+            // 
+            this.comboLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboLanguage.FormattingEnabled = true;
+            this.comboLanguage.Location = new System.Drawing.Point(76, 138);
+            this.comboLanguage.Name = "comboLanguage";
+            this.comboLanguage.Size = new System.Drawing.Size(170, 21);
+            this.comboLanguage.TabIndex = 6;
+            this.comboLanguage.SelectedIndexChanged += new System.EventHandler(this.comboLanguage_SelectedIndexChanged);
+            // 
             // SettingsView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(251)))), ((int)(((byte)(251)))), ((int)(((byte)(251)))));
+            this.Controls.Add(this.comboLanguage);
+            this.Controls.Add(this.labelLanguage);
             this.Controls.Add(this.checkInstallIcons);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.checkBox2);
@@ -106,5 +129,7 @@
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.CheckBox checkInstallIcons;
+        private System.Windows.Forms.Label labelLanguage;
+        private System.Windows.Forms.ComboBox comboLanguage;
     }
 }

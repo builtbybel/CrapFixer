@@ -65,7 +65,7 @@ public static class PluginManager
             return;
         }
 
-        var pluginsNode = new TreeNode("Plugins")
+        var pluginsNode = new TreeNode(LocalizationManager.T("options.plugins"))
         {
             BackColor = Color.Magenta,
             ForeColor = Color.White

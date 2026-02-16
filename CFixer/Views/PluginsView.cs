@@ -9,11 +9,12 @@ using System.Windows.Forms;
 
 namespace CFixer.Views
 {
-    public partial class PluginsView : UserControl
+    public partial class PluginsView : UserControl, ILocalizedControl
     {
         private List<PluginEntry> plugins = new List<PluginEntry>();        // All plugins from the manifest, so full squad
         private List<PluginEntry> visiblePlugins = new List<PluginEntry>(); // Plugins currently shown in the UI (filtered or not)
         private HashSet<string> installedPlugins = new HashSet<string>();   // Names of plugins already installed on disk
+        private string _searchPlaceholder = string.Empty;
 
         private const string manifestUrl = "https://raw.githubusercontent.com/builtbybel/CrapFixer/main/plugins/plugins_manifest.txt";
 
@@ -27,6 +28,60 @@ namespace CFixer.Views
         public PluginsView()
         {
             InitializeComponent();
+            ApplyLocalization();
+            LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
+            Disposed += PluginsView_Disposed;
+        }
+
+        private void ApplyLocalization()
+        {
+            btnDescription.Text = LocalizationManager.T("plugins.description");
+            btnPluginInstall.Text = LocalizationManager.T("plugins.install");
+            btnPluginUpdateAll.Text = LocalizationManager.T("plugins.updateAll");
+            btnPluginRemove.Text = LocalizationManager.T("plugins.remove");
+            btnPluginEdit.Text = LocalizationManager.T("plugins.edit");
+            btnHelp.Text = LocalizationManager.T("plugins.help");
+            btnPluginSubmit.Text = LocalizationManager.T("plugins.submit");
+            var placeholder = LocalizationManager.T("plugins.search");
+            if (string.IsNullOrWhiteSpace(textSearch.Text) || textSearch.Text.Equals(_searchPlaceholder, StringComparison.OrdinalIgnoreCase))
+            {
+                textSearch.Text = placeholder;
+            }
+            _searchPlaceholder = placeholder;
+            linkPluginUsage.Text = LocalizationManager.T("plugins.usage");
+            columnHeader1.Text = LocalizationManager.T("plugins.colPlugin");
+            columnHeader2.Text = LocalizationManager.T("plugins.colInstalled");
+            columnHeader3.Text = LocalizationManager.T("plugins.colType");
+        }
+
+        public void RefreshLocalization()
+        {
+            ApplyLocalization();
+            var query = textSearch.Text.Trim().ToLower();
+            if (query == _searchPlaceholder.ToLower())
+                query = string.Empty;
+
+            UpdateVisiblePlugins(query);
+        }
+
+        private void LocalizationManager_LanguageChanged(object sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(RefreshLocalization));
+            }
+            else
+            {
+                RefreshLocalization();
+            }
+        }
+
+        private void PluginsView_Disposed(object sender, EventArgs e)
+        {
+            LocalizationManager.LanguageChanged -= LocalizationManager_LanguageChanged;
+            Disposed -= PluginsView_Disposed;
         }
 
         private async void PluginsView_Load(object sender, EventArgs e)
@@ -75,7 +130,7 @@ namespace CFixer.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading plugins: " + ex.Message);
+                MessageBox.Show(LocalizationManager.T("plugins.msgLoadError") + ex.Message);
             }
         }
 
@@ -153,7 +208,7 @@ namespace CFixer.Views
             var checkedItems = listPlugins.CheckedItems.Cast<ListViewItem>().ToList();
             if (checkedItems.Count == 0)
             {
-                MessageBox.Show("Please check one or more plugins to download.");
+                MessageBox.Show(LocalizationManager.T("plugins.msgSelectForDownload"));
                 return;
             }
 
@@ -187,12 +242,12 @@ namespace CFixer.Views
                     {
                         await client.DownloadFileTaskAsync(new Uri(plugin.Url), file);
                         installedPlugins.Add(Path.GetFileName(plugin.Url));
-                        item.SubItems[1].Text = "Yes";  // Update Installed column
+                        item.SubItems[1].Text = LocalizationManager.T("plugins.stateYes");  // Update Installed column
                         //item.Checked = true;                // Ensure checked
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Failed to download {plugin.Name}: {ex.Message}");
+                        MessageBox.Show(string.Format(LocalizationManager.T("plugins.msgDownloadFailed"), plugin.Name, ex.Message));
                     }
 
                     progressBarDownload.Value = ++done;
@@ -224,10 +279,10 @@ namespace CFixer.Views
             // Update the status of all plugins to "Updated"
             foreach (ListViewItem item in listPlugins.Items)
             {
-                item.SubItems[1].Text = "Updated";
+                item.SubItems[1].Text = LocalizationManager.T("plugins.stateUpdated");
             }
 
-            MessageBox.Show("All plugins updated.");
+            MessageBox.Show(LocalizationManager.T("plugins.msgAllUpdated"));
         }
 
         private void btnPluginRemove_Click(object sender, EventArgs e)
@@ -238,7 +293,7 @@ namespace CFixer.Views
 
             if (checkedItems.Count == 0)
             {
-                MessageBox.Show("No plugins selected.");
+                MessageBox.Show(LocalizationManager.T("plugins.msgNoneSelected"));
                 return;
             }
 
@@ -254,18 +309,18 @@ namespace CFixer.Views
                     File.Delete(path);
 
                 installedPlugins.Remove(Path.GetFileName(plugin.Url));
-                item.SubItems[1].Text = "No";
+                item.SubItems[1].Text = LocalizationManager.T("plugins.stateNo");
                 item.Checked = false;
             }
 
-            MessageBox.Show("Selected plugins removed.");
+            MessageBox.Show(LocalizationManager.T("plugins.msgRemoved"));
         }
 
         private void btnPluginEdit_Click(object sender, EventArgs e)
         {
             if (listPlugins.SelectedItems.Count == 0)
             {
-                MessageBox.Show("Please select a plugin first.");
+                MessageBox.Show(LocalizationManager.T("plugins.msgSelectFirst"));
                 return;
             }
 
@@ -276,7 +331,7 @@ namespace CFixer.Views
 
             if (!File.Exists(path))
             {
-                MessageBox.Show("Plugin file not found. Please install the plugin first.");
+                MessageBox.Show(LocalizationManager.T("plugins.msgPluginNotFound"));
                 return;
             }
 
@@ -288,7 +343,7 @@ namespace CFixer.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not open plugin: " + ex.Message);
+                MessageBox.Show(LocalizationManager.T("plugins.msgOpenPluginFailed") + ex.Message);
             }
         }
 
@@ -299,14 +354,14 @@ namespace CFixer.Views
         {
             if (listPlugins.SelectedItems.Count == 0)
             {
-                MessageBox.Show("Please select a plugin first.");
+                MessageBox.Show(LocalizationManager.T("plugins.msgSelectFirst"));
                 return;
             }
 
             var plugin = listPlugins.SelectedItems[0].Tag as PluginEntry;
             if (plugin != null)
             {
-                MessageBox.Show(plugin.Description, $"Info: {plugin.Name}");
+                MessageBox.Show(plugin.Description, string.Format(LocalizationManager.T("plugins.msgInfoTitle"), plugin.Name));
             }
         }
 
@@ -351,15 +406,15 @@ namespace CFixer.Views
                 }
                 else if (Path.GetExtension(plugin.Url).Equals(".ps1", StringComparison.OrdinalIgnoreCase))
                 {
-                    type = "Powershell";
+                    type = LocalizationManager.T("plugins.typePowershell");
                 }
                 else
                 {
-                    type = "Other";
+                    type = LocalizationManager.T("plugins.typeOther");
                 }
 
-                var item = new ListViewItem(plugin.Name);
-                item.SubItems.Add(isInstalled ? "Yes" : "No");
+                var item = new ListViewItem(GetLocalizedPluginName(plugin.Name));
+                item.SubItems.Add(isInstalled ? LocalizationManager.T("plugins.stateYes") : LocalizationManager.T("plugins.stateNo"));
                 item.SubItems.Add(type);
                 item.Tag = plugin;
                 item.Checked = isInstalled;
@@ -372,6 +427,13 @@ namespace CFixer.Views
             {
                 column.Width = -2;
             }
+        }
+
+        private static string GetLocalizedPluginName(string pluginName)
+        {
+            var key = "plugins.name." + pluginName;
+            var localized = LocalizationManager.T(key);
+            return string.Equals(localized, key, StringComparison.Ordinal) ? pluginName : localized;
         }
 
 

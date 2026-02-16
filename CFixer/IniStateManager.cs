@@ -58,7 +58,8 @@ public static class IniStateManager
     {
         foreach (TreeNode node in nodes)
         {
-            lines.Add($"{node.Text.Trim()}={node.Checked}");
+            string key = string.IsNullOrWhiteSpace(node.Name) ? node.Text.Trim() : node.Name.Trim();
+            lines.Add($"{key}={node.Checked}");
             if (node.Nodes.Count > 0)
                 AppendNodeStates(lines, node.Nodes);
         }
@@ -175,9 +176,11 @@ public static class IniStateManager
     {
         foreach (TreeNode node in nodes)
         {
-            string nodeName = node.Text.Trim();
-            if (states.ContainsKey(nodeName))
-                node.Checked = states[nodeName];
+            string nodeKey = string.IsNullOrWhiteSpace(node.Name) ? node.Text.Trim() : node.Name.Trim();
+            if (states.ContainsKey(nodeKey))
+                node.Checked = states[nodeKey];
+            else if (states.ContainsKey(node.Text.Trim()))
+                node.Checked = states[node.Text.Trim()];
 
             if (node.Nodes.Count > 0)
                 ApplyStates(node.Nodes, states);
@@ -235,6 +238,65 @@ public static class IniStateManager
             var value = parts[1].Trim();
 
             result[key] = value.ToLower() == "true";
+        }
+
+        return result;
+    }
+
+    // Saves an individual string setting in a specific section.
+    public static void SaveViewStringSetting(string viewName, string key, string value)
+    {
+        lock (FileLock)
+        {
+            var lines = File.Exists(IniPath) ? File.ReadAllLines(IniPath).ToList() : new List<string>();
+            var sectionData = LoadViewStringSettingsInternal(lines, viewName);
+            sectionData[key] = value;
+
+            RemoveSection(lines, viewName);
+            lines.Add($"[{viewName}]");
+            foreach (var kvp in sectionData)
+            {
+                lines.Add($"{kvp.Key}={kvp.Value}");
+            }
+
+            File.WriteAllLines(IniPath, lines);
+        }
+    }
+
+    // Loads one individual string setting from a section.
+    public static string LoadViewStringSetting(string viewName, string key, string defaultValue = "")
+    {
+        if (!File.Exists(IniPath)) return defaultValue;
+
+        var lines = File.ReadAllLines(IniPath).ToList();
+        var settings = LoadViewStringSettingsInternal(lines, viewName);
+        return settings.TryGetValue(key, out var value) ? value : defaultValue;
+    }
+
+    private static Dictionary<string, string> LoadViewStringSettingsInternal(List<string> lines, string viewName)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        bool inTargetSection = false;
+
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed)) continue;
+
+            if (trimmed.StartsWith("[") && trimmed.EndsWith("]"))
+            {
+                inTargetSection = trimmed.Equals($"[{viewName}]", StringComparison.OrdinalIgnoreCase);
+                continue;
+            }
+
+            if (!inTargetSection) continue;
+
+            var parts = trimmed.Split(new[] { '=' }, 2);
+            if (parts.Length != 2) continue;
+
+            var settingKey = parts[0].Trim();
+            var settingValue = parts[1].Trim();
+            result[settingKey] = settingValue;
         }
 
         return result;

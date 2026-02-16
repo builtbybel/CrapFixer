@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace CrapFixer
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, ILocalizedControl
     {
         private NavigationManager _navigationManager;
         private NavigationHandler _navigationHandler;
@@ -23,6 +23,8 @@ namespace CrapFixer
         {
             InitializeComponent();
             IniStateManager.ApplyWindowState(this);
+            ApplyLocalization();
+            LocalizationManager.LanguageChanged += LocalizationManager_LanguageChanged;
 
             // Set up the main navigation manager and logger
             _navigationManager = new NavigationManager(panelContainer);
@@ -69,6 +71,105 @@ namespace CrapFixer
             // Set version and OS info
             lblVersionInfo.Text = $"v{Program.GetAppVersion()} ";
             lblOSInfo.Text = await OSHelper.OSHelper.GetWindowsVersion();
+        }
+
+        private void ApplyLocalization()
+        {
+            btnAnalyze.Text = LocalizationManager.T("main.btnAnalyze");
+            Windows.Text = LocalizationManager.T("main.tabWindows");
+            Apps.Text = LocalizationManager.T("main.tabApplications");
+            analyzeMarkedFeatureToolStripMenuItem.Text = LocalizationManager.T("main.ctxAnalyze");
+            fixMarkedFeatureToolStripMenuItem.Text = LocalizationManager.T("main.ctxFix");
+            restoreMarkedFeatureToolStripMenuItem.Text = LocalizationManager.T("main.ctxRestore");
+            helpMarkedFeatureToolStripMenuItem.Text = LocalizationManager.T("main.ctxHelp");
+            btnFix.Text = LocalizationManager.T("main.btnFix");
+            btnRestore.Text = LocalizationManager.T("main.btnRestore");
+            linkUpdateCheck.Text = LocalizationManager.T("main.linkUpdate");
+            btnTools.Text = LocalizationManager.T("main.btnTools");
+            btnFixer.Text = LocalizationManager.T("main.btnFixer");
+            linkSelection.Text = LocalizationManager.T("main.linkSelection");
+
+            var appsPlaceholder = LocalizationManager.T("main.appsPlaceholder");
+            if (checkedListBoxApps.Items.Count == 1 &&
+                checkedListBoxApps.Items[0] is string placeholder &&
+                (placeholder == "No analysis yet" || placeholder == appsPlaceholder))
+            {
+                checkedListBoxApps.Items[0] = appsPlaceholder;
+            }
+
+            toolTip.SetToolTip(btnGitHub, LocalizationManager.T("main.tooltipSupport"));
+            toolTip.SetToolTip(lblHeader, LocalizationManager.T("main.tooltipGithub"));
+            toolTip.SetToolTip(pictureHeader, LocalizationManager.T("main.tooltipGithub"));
+        }
+
+        public void RefreshLocalization()
+        {
+            ApplyLocalization();
+            RefreshFeatureTreeLocalization();
+            if (panelContainer.Controls.Count > 0 && panelContainer.Controls[0] is ILocalizedControl localizedControl)
+            {
+                localizedControl.RefreshLocalization();
+            }
+        }
+
+        private void RefreshFeatureTreeLocalization()
+        {
+            var checkedMap = CaptureNodeCheckedState(treeFeatures.Nodes);
+            FeatureNodeManager.LoadFeatures(treeFeatures);
+            PluginManager.LoadPlugins(treeFeatures);
+            RestoreNodeCheckedState(treeFeatures.Nodes, checkedMap);
+        }
+
+        private static System.Collections.Generic.Dictionary<string, bool> CaptureNodeCheckedState(TreeNodeCollection nodes)
+        {
+            var map = new System.Collections.Generic.Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            CaptureNodeCheckedStateRecursive(nodes, map);
+            return map;
+        }
+
+        private static void CaptureNodeCheckedStateRecursive(TreeNodeCollection nodes, System.Collections.Generic.Dictionary<string, bool> map)
+        {
+            foreach (TreeNode node in nodes)
+            {
+                string key = string.IsNullOrWhiteSpace(node.Name) ? node.Text.Trim() : node.Name.Trim();
+                map[key] = node.Checked;
+
+                if (node.Nodes.Count > 0)
+                {
+                    CaptureNodeCheckedStateRecursive(node.Nodes, map);
+                }
+            }
+        }
+
+        private static void RestoreNodeCheckedState(TreeNodeCollection nodes, System.Collections.Generic.Dictionary<string, bool> map)
+        {
+            foreach (TreeNode node in nodes)
+            {
+                string key = string.IsNullOrWhiteSpace(node.Name) ? node.Text.Trim() : node.Name.Trim();
+                if (map.TryGetValue(key, out bool checkedState))
+                {
+                    node.Checked = checkedState;
+                }
+
+                if (node.Nodes.Count > 0)
+                {
+                    RestoreNodeCheckedState(node.Nodes, map);
+                }
+            }
+        }
+
+        private void LocalizationManager_LanguageChanged(object sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(RefreshLocalization));
+            }
+            else
+            {
+                RefreshLocalization();
+            }
         }
 
         // Handles navigation button clicks and switches views accordingly
@@ -163,10 +264,8 @@ namespace CrapFixer
         private void btnRestore_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-           "⚠️ This will restore all selected features to their original state.\n" +
-           "Changes made by previous configurations may be reverted.\n\n" +
-           "Are you sure you want to proceed?",
-           "Restore Selected Features",
+           LocalizationManager.T("main.restoreMessage"),
+           LocalizationManager.T("main.restoreTitle"),
            MessageBoxButtons.YesNo,
            MessageBoxIcon.Warning);
 
@@ -176,7 +275,7 @@ namespace CrapFixer
                 foreach (TreeNode node in treeFeatures.Nodes)
                     FeatureNodeManager.RestoreChecked(node);
 
-                Logger.Log("↩️ All selected features have been restored.", LogLevel.Info);
+                Logger.Log(LocalizationManager.T("main.restoreLog"), LogLevel.Info);
             }
         }
 
@@ -358,6 +457,8 @@ namespace CrapFixer
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            LocalizationManager.LanguageChanged -= LocalizationManager_LanguageChanged;
+
             if (IniStateManager.IsViewSettingEnabled("SETTINGS", "checkSaveToINI"))
             {
                 IniStateManager.Save(treeFeatures, this);

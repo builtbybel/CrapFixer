@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CFixer;
 
 namespace CrapFixer
 {
@@ -64,12 +65,17 @@ namespace CrapFixer
         /// </summary>
         private static void AddNode(TreeNodeCollection treeNodes, FeatureNode featureNode)
         {
+            string localizedName = featureNode.IsCategory
+                ? LocalizationManager.LocalizeFeatureCategory(featureNode.Name)
+                : LocalizationManager.LocalizeFeatureName(featureNode);
+
             string text = featureNode.IsCategory
-                ? "  " + featureNode.Name + "  " // add extra space to avoid clipping
-                : featureNode.Name;
+                ? "  " + localizedName + "  " // add extra space to avoid clipping
+                : localizedName;
 
             TreeNode node = new TreeNode(text)
             {
+                Name = featureNode.Name,
                 Tag = featureNode,
                 Checked = featureNode.DefaultChecked,
             };
@@ -93,7 +99,7 @@ namespace CrapFixer
                 await AnalyzeCheckedRecursive(node);
             }
 
-            Logger.Log("🔎 ANALYSIS COMPLETE", LogLevel.Info);
+            Logger.Log("ANALYSIS COMPLETE", LogLevel.Info);
             Logger.Log(new string('=', 50), LogLevel.Info);
 
             int ok = totalChecked - issuesFound;
@@ -119,8 +125,8 @@ namespace CrapFixer
                         issuesFound++;
                         node.ForeColor = Color.Red; // Mark as misconfigured
                         string category = node.Parent?.Text ?? "General";
-                        Logger.Log($"❌ [{category}] {fn.Name} - Not configured as recommended.");
-                        Logger.Log($"   ➤ {fn.Feature.GetFeatureDetails()}");
+                        Logger.Log($"[{category}] {fn.Name} - Not configured as recommended.");
+                        Logger.Log($"   {fn.Feature.GetFeatureDetails()}");
                         // Log a separator when an issue was found
                         Logger.Log(new string('-', 50), LogLevel.Info);
                     }
@@ -147,10 +153,11 @@ namespace CrapFixer
             {
                 if (!fn.IsCategory && node.Checked && fn.Feature != null)
                 {
+                    string displayName = LocalizationManager.LocalizeFeatureName(fn);
                     bool result = await fn.Feature.DoFeature();
                     Logger.Log(result
-                        ? $"🔧 {fn.Name} - Fixed"
-                        : $"❌ {fn.Name} - ⚠️ Fix failed (This feature may require admin privileges)",
+                        ? $"{displayName} - Fixed"
+                        : $"{displayName} - Fix failed (This feature may require admin privileges)",
                         result ? LogLevel.Info : LogLevel.Error);
                 }
 
@@ -168,11 +175,12 @@ namespace CrapFixer
             {
                 if (!fn.IsCategory && node.Checked && fn.Feature != null)
                 {
+                    string displayName = LocalizationManager.LocalizeFeatureName(fn);
                     bool ok = fn.Feature.UndoFeature();
                     string category = node.Parent?.Text ?? "General";
                     Logger.Log(ok
-                        ? $"↩️ [{category}] {fn.Name} - Restored"
-                        : $"❌ [{category}] {fn.Name} - Restore failed",
+                        ? $"[{category}] {displayName} - Restored"
+                        : $"[{category}] {displayName} - Restore failed",
                         ok ? LogLevel.Info : LogLevel.Error);
                 }
 
@@ -193,13 +201,13 @@ namespace CrapFixer
 
                 if (isOk)
                 {
-                    Logger.Log($"✅ Feature: {fn.Name} is properly configured.", LogLevel.Info);
+                    Logger.Log($"Feature: {fn.Name} is properly configured.", LogLevel.Info);
                 }
                 else
                 {
                     string category = node.Parent?.Text ?? "General";
-                    Logger.Log($"❌ Feature: {fn.Name} requires attention.", LogLevel.Warning);
-                    Logger.Log($"   ➤ {fn.Feature.GetFeatureDetails()}");
+                    Logger.Log($"Feature: {fn.Name} requires attention.", LogLevel.Warning);
+                    Logger.Log($"   {fn.Feature.GetFeatureDetails()}");
                     Logger.Log(new string('-', 50), LogLevel.Info);
                 }
             }
@@ -223,11 +231,12 @@ namespace CrapFixer
             // Try to fix this node if it is NOT a category (i.e., a leaf node)
             if (node.Tag is FeatureNode fn && !fn.IsCategory && fn.Feature != null)
             {
+                string displayName = LocalizationManager.LocalizeFeatureName(fn);
                 // Always fix the selected leaf node, regardless of Checked
                 bool result = await fn.Feature.DoFeature();
                 Logger.Log(result
-                    ? $"🔧 {fn.Name} - Fixed"
-                    : $"❌ {fn.Name} - ⚠️ Fix failed (This feature may require admin privileges)",
+                    ? $"{displayName} - Fixed"
+                    : $"{displayName} - Fix failed (This feature may require admin privileges)",
                     result ? LogLevel.Info : LogLevel.Error);
             }
             else
@@ -251,10 +260,11 @@ namespace CrapFixer
             // Restore feature node regardless of Checked state
             if (node.Tag is FeatureNode fn && !fn.IsCategory && fn.Feature != null)
             {
+                string displayName = LocalizationManager.LocalizeFeatureName(fn);
                 bool ok = fn.Feature.UndoFeature();
                 Logger.Log(ok
-                    ? $"↩️ {fn.Name} - Restored"
-                    : $"❌ {fn.Name} - Restore failed",
+                    ? $"{displayName} - Restored"
+                    : $"{displayName} - Restore failed",
                     ok ? LogLevel.Info : LogLevel.Error);
             }
             else
@@ -278,10 +288,11 @@ namespace CrapFixer
             // Show help for features
             if (node?.Tag is FeatureNode fn && fn.Feature != null)
             {
+                string displayName = LocalizationManager.LocalizeFeatureName(fn);
                 string info = fn.Feature.Info();
                 MessageBox.Show(
                     !string.IsNullOrEmpty(info) ? info : "No additional information available.",
-                    $"Help: {fn.Name}",
+                    $"Help: {displayName}",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
@@ -309,7 +320,7 @@ namespace CrapFixer
             // Show help for plugins
             if (!PluginManager.ShowHelp(node))
             {
-                MessageBox.Show("⚠️ No feature or plugin selected, or help info unavailable.",
+                MessageBox.Show("No feature or plugin selected, or help info unavailable.",
                     "Help",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);

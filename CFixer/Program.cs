@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Windows.Forms;
+using CFixer;
 
 namespace CrapFixer
 {
@@ -12,6 +13,9 @@ namespace CrapFixer
         [STAThread]
         private static void Main()
         {
+            var language = IniStateManager.LoadViewStringSetting("SETTINGS", "Language", LocalizationManager.DefaultLanguage);
+            LocalizationManager.SetLanguage(language);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
