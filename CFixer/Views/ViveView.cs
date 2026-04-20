@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CFixer.Helpers;
 
 namespace CFixer.Views
 {
@@ -18,12 +19,25 @@ namespace CFixer.Views
         public ViveView()
         {
             InitializeComponent();
+            ApplyLocalization();
             IsViveToolAvailable();
             InitFeatureList();
             LoadFeaturesToGrid();
 
             // Fire and forget async call
             _ = UpdateFeatureStatusFromSystem();
+        }
+
+        private void ApplyLocalization()
+        {
+            btnApply.Text = Localization.T("Apply selected");
+            btnDescription.Text = Localization.T("ViVe Tool");
+            linkPluginUsage.Text = Localization.T("More infos");
+            lblCustomIds.Text = Localization.T("Custom Ids");
+            btnApplyCustom.Text = Localization.T("Apply Custom");
+            NameColumn.HeaderText = Localization.T("Feature");
+            StatusColumn.HeaderText = Localization.T("Status");
+            InfoColumn.HeaderText = Localization.T("Info");
         }
 
         private void IsViveToolAvailable()
@@ -36,7 +50,7 @@ namespace CFixer.Views
             if (viveFolder == null)
             {
                 viveToolPath = null;
-                btnDescription.Text = "Enable experimental and hidden features (Disabled)";
+                btnDescription.Text = Localization.T("Enable experimental and hidden features (Disabled)");
                 return;
             }
 
@@ -44,7 +58,7 @@ namespace CFixer.Views
             if (File.Exists(exePath))
             {
                 viveToolPath = exePath;
-                btnDescription.Text = "Enable experimental and hidden features (Enabled)";
+                btnDescription.Text = Localization.T("Enable experimental and hidden features (Enabled)");
             }
         }
 
@@ -58,21 +72,21 @@ namespace CFixer.Views
                 new ViveFeature
                 {
                     Ids = new List<int> {47205210, 49221331, 49381526, 49402389, 49820095, 55495322, 48433719},
-                    Name = "Enable the redesigned Windows 11 Start menu",
+                    Name = Localization.T("Enable the redesigned Windows 11 Start menu"),
                     InfoUrl = "https://www.neowin.net/guides/how-to-enable-the-redesigned-windows-11-start-menu/",
                     Enabled = false
                 },
                 new ViveFeature
                 {
                     Ids = new List<int> {52467192,53079680},
-                    Name = "Enable Text extractor in Snipping Tool",
+                    Name = Localization.T("Enable Text extractor in Snipping Tool"),
                     InfoUrl = "https://blogs.windows.com/windows-insider/2025/04/15/text-extractor-in-snipping-tool-begins-rolling-out-to-windows-insiders/",
                     Enabled = false
                 }
                     ,new ViveFeature
                 {
                     Ids = new List<int> {45624564},
-                    Name = "Enable Drag Tray Share UI",
+                    Name = Localization.T("Enable Drag Tray Share UI"),
                     InfoUrl = "https://www.neowin.net/news/windows-11-is-getting-a-quirky-new-way-to-share-files/",
                     Enabled = false
                 }
@@ -95,7 +109,7 @@ namespace CFixer.Views
                 row.Cells["NameColumn"].Value = feature.Name;
                 row.Cells["IdColumn"].Value = feature.IdsAsString;
                 row.Cells["InfoColumn"].Value = feature.InfoUrl;
-                row.Cells["StatusColumn"].Value = "Unknown";
+                row.Cells["StatusColumn"].Value = Localization.T("Unknown");
             }
         }
 
@@ -106,7 +120,7 @@ namespace CFixer.Views
         {
             if (string.IsNullOrEmpty(viveToolPath))
             {
-                MessageBox.Show("ViVeTool not found. Please ensure it is installed in the plugins folder.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("ViVeTool not found. Please ensure it is installed in the plugins folder."), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -144,7 +158,7 @@ namespace CFixer.Views
             Task.Delay(1000).Wait();
             await UpdateFeatureStatusFromSystem(); // Refresh the status after applying changes
 
-            MessageBox.Show("Features have been applied.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Localization.T("Features have been applied."), Localization.T("Done"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
@@ -157,7 +171,7 @@ namespace CFixer.Views
 
             if (string.IsNullOrEmpty(viveToolPath))
             {
-                MessageBox.Show("ViVeTool not found. Please ensure it is installed in the plugins folder.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("ViVeTool not found. Please ensure it is installed in the plugins folder."), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return statusMap;
             }
 
@@ -223,11 +237,11 @@ namespace CFixer.Views
 
                 int enabledCount = ids.Count(id => systemStatus.ContainsKey(id) && systemStatus[id]);
 
-                string status = "Disabled";
+                string status = Localization.T("Disabled");
                 if (enabledCount == ids.Count)
-                    status = "All Enabled";
+                    status = Localization.T("All Enabled");
                 else if (enabledCount > 0)
-                    status = "Partially Enabled";
+                    status = Localization.T("Partially Enabled");
 
                 row.Cells["StatusColumn"].Value = status;
             }
@@ -250,7 +264,7 @@ namespace CFixer.Views
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Failed to open link:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(Localization.T("Failed to open link:\n") + ex.Message, Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -271,10 +285,7 @@ namespace CFixer.Views
 
         private void linkPluginUsage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MessageBox.Show("This plugin uses ViVeTool to enable hidden Windows features.\n" +
-    "Please download ViVeTool (e.g. 'ViVeTool-v0.3.x-IntelAmd') from:\n" +
-    "https://github.com/thebookisclosed/ViVe/releases\n" +
-    "Extract it and place the contents into a subfolder inside the 'plugins' directory.\n\n");
+            MessageBox.Show(Localization.T("This plugin uses ViVeTool to enable hidden Windows features.\nPlease download ViVeTool (e.g. 'ViVeTool-v0.3.x-IntelAmd') from:\nhttps://github.com/thebookisclosed/ViVe/releases\nExtract it and place the contents into a subfolder inside the 'plugins' directory.\n\n"));
         }
 
         private void btnApplyCustom_Click(object sender, EventArgs e)
@@ -283,7 +294,7 @@ namespace CFixer.Views
 
             if (string.IsNullOrWhiteSpace(input))
             {
-                MessageBox.Show("Please enter one or more feature IDs.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization.T("Please enter one or more feature IDs."), Localization.T("Invalid Input"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -299,22 +310,21 @@ namespace CFixer.Views
                 }
                 else
                 {
-                    MessageBox.Show($"Invalid ID: '{part}'", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(Localization.T($"Invalid ID: '{part}'"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
 
             if (idList.Count == 0)
             {
-                MessageBox.Show("No valid IDs found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("No valid IDs found."), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // Ask whether to enable or disable
             var result = MessageBox.Show(
-             $"Do you want to ENABLE these features?\n\n{string.Join(", ", idList)}\n\n" +
-             "Yes = Enable\nNo = Disable\nCancel = Abort",
-             "Confirm Action",
+             $"이 기능들을 활성화하시겠습니까?\n\n{string.Join(", ", idList)}\n\n예 = 활성화\n아니오 = 비활성화\n취소 = 중단",
+             Localization.T("Confirm Action"),
              MessageBoxButtons.YesNoCancel,
              MessageBoxIcon.Question);
 
@@ -324,7 +334,7 @@ namespace CFixer.Views
 
             ApplyFeature(idList, enable);
 
-            MessageBox.Show("Custom feature action sent to ViVeTool.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Localization.T("Custom feature action sent to ViVeTool."), Localization.T("Done"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

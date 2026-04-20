@@ -39,6 +39,8 @@ public static class Logger
     /// </summary>
     private static void LogInternal(string message, LogLevel level, Font customFont = null)
     {
+        message = CFixer.Helpers.Localization.TranslateRuntimeText(message);
+
         // string prefix = $"[{DateTime.Now:HH:mm:ss}] [{level}] ";
         string fullMessage = message + Environment.NewLine;
 

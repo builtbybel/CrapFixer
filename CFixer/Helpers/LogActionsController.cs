@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using CFixer.Helpers;
 
 /// <summary>
 /// Manages log-related actions using a ComboBox in MainForm.
@@ -23,10 +24,10 @@ public class LogActionsController
     private void Initialize()
     {
         _combo.Items.Clear();
-        _combo.Items.Add("Select an action...");
-        _combo.Items.Add("Analyze log online (recommended)");
-        _combo.Items.Add("Copy log to clipboard");
-        _combo.Items.Add("Clear log");
+        _combo.Items.Add(Localization.T("Select an action..."));
+        _combo.Items.Add(Localization.T("Analyze log online (recommended)"));
+        _combo.Items.Add(Localization.T("Copy log to clipboard"));
+        _combo.Items.Add(Localization.T("Clear log"));
         _combo.SelectedIndex = 0;
 
         _combo.SelectedIndexChanged += Combo_SelectedIndexChanged;
@@ -43,15 +44,15 @@ public class LogActionsController
 
         switch (selected)
         {
-            case "Analyze log online (recommended)":
+            case "로그 온라인 분석 (권장)":
                 _logActions.AnalyzeOnline("https://builtbybel.github.io/CrapFixer/log-analyzer/index.html");
                 break;
 
-            case "Copy log to clipboard":
+            case "로그를 클립보드로 복사":
                 _logActions.CopyToClipboard();
                 break;
 
-            case "Clear log":
+            case "로그 지우기":
                 _logActions.Clear();
                 break;
         }

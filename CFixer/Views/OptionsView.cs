@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using Views;
+using CFixer.Helpers;
 
 namespace CFixer.Views
 {
@@ -11,8 +12,17 @@ namespace CFixer.Views
         public OptionsView()
         {
             InitializeComponent();
+            ApplyLocalization();
             subNavigation = new NavigationManager(panelSubContent);
             subNavigation.SwitchView(new AboutView()); // Startsite
+        }
+
+        private void ApplyLocalization()
+        {
+            btnSettingsMenu.Text = Localization.T("Settings");
+            btnPluginsMenu.Text = Localization.T("Plugins");
+            btnViveMenu.Text = Localization.T("Features ");
+            btnAboutMenu.Text = Localization.T("About");
         }
 
         private void btnAboutMenu_Click(object sender, EventArgs e)

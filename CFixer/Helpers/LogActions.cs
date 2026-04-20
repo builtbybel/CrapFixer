@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using CFixer.Helpers;
 
 /// <summary>
 /// Provides actions for interacting with and managing the content of a log displayed in a <see cref="RichTextBox"/>.
@@ -40,10 +41,8 @@ public sealed class LogActions
         Process.Start(baseUrl);
 
         MessageBox.Show(
-            "The log has been copied to the clipboard.\n" +
-            "Click “Paste log from clipboard” on the log analyzer page, or simply press CTRL+V,\n" +
-            "to insert it into the analyzer.",
-            "Log copied",
+            Localization.T("The log has been copied to the clipboard.\nClick “Paste log from clipboard” on the log analyzer page, or simply press CTRL+V,\nto insert it into the analyzer."),
+            Localization.T("Log copied"),
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
     }

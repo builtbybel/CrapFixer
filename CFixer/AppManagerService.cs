@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CFixer.Helpers;
 using Windows.Foundation;
 using Windows.Management.Deployment;
 
@@ -57,7 +58,7 @@ namespace CrapFixer
 
             if (apps.Count > 0)
             {
-                Logger.Log("Bloatware apps detected:", LogLevel.Info);
+                Logger.Log(Localization.T("Bloatware apps detected:"), LogLevel.Info);
                 foreach (var app in apps)
                 {
                     Logger.Log($"❌ [ Bloatware ] {app.AppName} ({app.FullName})", LogLevel.Warning);
@@ -65,7 +66,7 @@ namespace CrapFixer
             }
             else
             {
-                Logger.Log("✅ No Microsoft Store bloatware apps found.", LogLevel.Info);
+                Logger.Log(Localization.T("✅ No Microsoft Store bloatware apps found."), LogLevel.Info);
             }
 
             Logger.Log(""); // Add a blank line for spacing
@@ -189,7 +190,7 @@ namespace CrapFixer
                 Logger.Log($"⚠️ Failed to remove Store App: {app}", LogLevel.Warning);
             }
 
-            Logger.Log("App cleanup complete.");
+            Logger.Log(Localization.T("App cleanup complete."));
 
             return removedApps; // Return removed apps to update the UI
         }

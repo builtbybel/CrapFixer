@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CFixer.Helpers;
 
 namespace CrapFixer
 {
@@ -97,7 +98,7 @@ namespace CrapFixer
             Logger.Log(new string('=', 50), LogLevel.Info);
 
             int ok = totalChecked - issuesFound;
-            Logger.Log($"Summary: {ok} of {totalChecked} checked settings are OK; {issuesFound} require attention.",
+            Logger.Log($"요약: 선택한 설정 {totalChecked}개 중 {ok}개는 정상이며, {issuesFound}개는 점검이 필요합니다.",
                 issuesFound > 0 ? LogLevel.Warning : LogLevel.Info);
         }
 
@@ -118,9 +119,9 @@ namespace CrapFixer
                     {
                         issuesFound++;
                         node.ForeColor = Color.Red; // Mark as misconfigured
-                        string category = node.Parent?.Text ?? "General";
+                        string category = Localization.TreeText(node.Parent?.Text ?? "General");
                         Logger.Log($"❌ [{category}] {fn.Name} - Not configured as recommended.");
-                        Logger.Log($"   ➤ {fn.Feature.GetFeatureDetails()}");
+                        Logger.Log($"   ➤ {Localization.Detail(fn.Feature.GetFeatureDetails())}");
                         // Log a separator when an issue was found
                         Logger.Log(new string('-', 50), LogLevel.Info);
                     }
@@ -169,7 +170,7 @@ namespace CrapFixer
                 if (!fn.IsCategory && node.Checked && fn.Feature != null)
                 {
                     bool ok = fn.Feature.UndoFeature();
-                    string category = node.Parent?.Text ?? "General";
+                    string category = Localization.TreeText(node.Parent?.Text ?? "General");
                     Logger.Log(ok
                         ? $"↩️ [{category}] {fn.Name} - Restored"
                         : $"❌ [{category}] {fn.Name} - Restore failed",
@@ -197,9 +198,8 @@ namespace CrapFixer
                 }
                 else
                 {
-                    string category = node.Parent?.Text ?? "General";
                     Logger.Log($"❌ Feature: {fn.Name} requires attention.", LogLevel.Warning);
-                    Logger.Log($"   ➤ {fn.Feature.GetFeatureDetails()}");
+                    Logger.Log($"   ➤ {Localization.Detail(fn.Feature.GetFeatureDetails())}");
                     Logger.Log(new string('-', 50), LogLevel.Info);
                 }
             }
@@ -280,15 +280,15 @@ namespace CrapFixer
             {
                 string info = fn.Feature.Info();
                 MessageBox.Show(
-                    !string.IsNullOrEmpty(info) ? info : "No additional information available.",
-                    $"Help: {fn.Name}",
+                    !string.IsNullOrEmpty(info) ? Localization.T(info) : Localization.T("No additional information available."),
+                    $"{Localization.T("Help")}: {fn.Name}",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
                 // Optional online help
                 var result = MessageBox.Show(
-                    "Would you like to search online for more information about this feature?",
-                    "Online Help",
+                    Localization.T("Would you like to search online for more information about this feature?"),
+                    Localization.T("Online Help"),
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
@@ -309,8 +309,8 @@ namespace CrapFixer
             // Show help for plugins
             if (!PluginManager.ShowHelp(node))
             {
-                MessageBox.Show("⚠️ No feature or plugin selected, or help info unavailable.",
-                    "Help",
+                MessageBox.Show(Localization.T("⚠️ No feature or plugin selected, or help info unavailable."),
+                    Localization.T("Help"),
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
             }

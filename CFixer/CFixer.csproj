@@ -85,6 +85,7 @@
     <Compile Include="Features\UI\Transparency.cs" />
     <Compile Include="Helpers\LogActions.cs" />
     <Compile Include="Helpers\LogActionsController.cs" />
+    <Compile Include="Helpers\Localization.cs" />
     <Compile Include="Helpers\OSHelper.cs" />
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Helpers\Logger.cs" />

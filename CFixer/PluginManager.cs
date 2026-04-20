@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CFixer.Helpers;
 
 /// <summary>
 /// Provides functionality to load, execute, analyze, and fix external PowerShell-based plugins.
@@ -290,7 +291,7 @@ public static class PluginManager
             else
             {
                 Logger.Log($"⚠️ No Undo command found. Restore not possible.");
-                MessageBox.Show("Restore is not possible for this plugin.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("Restore is not possible for this plugin."), Localization.T("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }
@@ -339,9 +340,8 @@ public static class PluginManager
     public static bool ShowPluginWarning(string pluginName)
     {
         var result = MessageBox.Show(
-            $"⚠️ WARNING: The plugin '{pluginName}' is an external script. Its execution is outside this app's responsibility and at your own risk.\n" +
-            "Proceed only if you trust the source of this plugin. Do you want to continue?",
-            "Plugin Activation Warning",
+            $"⚠️ 경고: 플러그인 '{pluginName}' 은(는) 외부 스크립트입니다. 실행 결과에 대한 책임은 앱이 지지 않으며 사용자 책임으로 동작합니다.\n출처를 신뢰하는 경우에만 계속하세요. 진행하시겠습니까?",
+            Localization.T("Plugin Activation Warning"),
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Warning
         );
@@ -354,7 +354,7 @@ public static class PluginManager
         string info = GetPluginHelpInfo(node);
         if (!string.IsNullOrEmpty(info))
         {
-            MessageBox.Show(info, $"Plugin Help: {node.Text}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Localization.Detail(info), $"플러그인 도움말: {node.Text}", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return true;
         }
         return false;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
+using CFixer.Helpers;
 
 namespace CFixer.Views
 {
@@ -12,8 +13,17 @@ namespace CFixer.Views
         public SettingsView()
         {
             InitializeComponent();
+            ApplyLocalization();
             LoadSettings();
             CheckIfIconsInstalled();
+        }
+
+        private void ApplyLocalization()
+        {
+            checkSaveToINI.Text = Localization.T("Save all settings to INI file");
+            checkBox2.Text = Localization.T("Activate Plugins for PowerShell Tooling (Super Plugins)");
+            button1.Text = Localization.T("Basic settings");
+            checkInstallIcons.Text = Localization.T("Download optional icons to enhance navigation UI");
         }
 
         /// <summary>
@@ -56,9 +66,8 @@ namespace CFixer.Views
         private async void checkInstallIcons_CheckedChanged(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-            "By default, buttons have no icons to reduce app size. Enable this to download and display navigation icons." +
-            "\nWould you like to install it now?",
-                                    "Icons Pack Detected",
+            Localization.T("By default, buttons have no icons to reduce app size. Enable this to download and display navigation icons.\nWould you like to install it now?"),
+                                    Localization.T("Icons Pack Detected"),
                                     MessageBoxButtons.YesNo,
                                     MessageBoxIcon.Information
                                     );
@@ -91,8 +100,8 @@ namespace CFixer.Views
                     }
 
                     MessageBox.Show(
-                        "All icons have been successfully installed in the 'icons' folder!\n\n💖 Love CrapFixer? Consider supporting me with a small donation to keep this tool alive and improving!",
-                        "Icons Installed",
+                        Localization.T("All icons have been successfully installed in the 'icons' folder!\n\n💖 Love CrapFixer? Consider supporting me with a small donation to keep this tool alive and improving!"),
+                        Localization.T("Icons Installed"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
                     );
@@ -102,8 +111,8 @@ namespace CFixer.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("❌ An error occurred while downloading the icons:\n" + ex.Message,
-                        "Download Failed",
+                    MessageBox.Show(Localization.T("❌ An error occurred while downloading the icons:\n") + ex.Message,
+                        Localization.T("Download Failed"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                 }

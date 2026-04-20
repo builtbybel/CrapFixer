@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using CFixer.Helpers;
 
 namespace Views
 {
@@ -11,7 +12,14 @@ namespace Views
         public AboutView()
         {
             InitializeComponent();
+            ApplyLocalization();
             InitializeUI();
+        }
+
+        private void ApplyLocalization()
+        {
+            label1.Text = Localization.T("You can download the latest version, report bugs and submit feature requests at the following GitHub page.");
+            btnDonate.Text = Localization.T("Donate");
         }
 
         private void InitializeUI()
@@ -45,7 +53,7 @@ namespace Views
 
             if (string.IsNullOrEmpty(amount) || string.IsNullOrEmpty(currency))
             {
-                MessageBox.Show("Please select an amount and a currency.");
+                MessageBox.Show(Localization.T("Please select an amount and a currency."));
                 return;
             }
 

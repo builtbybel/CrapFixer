@@ -1,4 +1,5 @@
 ﻿using CFixer;
+using CFixer.Helpers;
 using CFixer.Properties;
 using CFixer.Views;
 using System;
@@ -22,6 +23,7 @@ namespace CrapFixer
         public MainForm()
         {
             InitializeComponent();
+            ApplyLocalization();
             IniStateManager.ApplyWindowState(this);
 
             // Set up the main navigation manager and logger
@@ -71,6 +73,32 @@ namespace CrapFixer
             lblOSInfo.Text = await OSHelper.OSHelper.GetWindowsVersion();
         }
 
+        private void ApplyLocalization()
+        {
+            Text = "CrapFixer";
+            btnAnalyze.Text = Localization.T("&Analyze");
+            Windows.Text = "Windows";
+            Apps.Text = Localization.T("Applications");
+            analyzeMarkedFeatureToolStripMenuItem.Text = Localization.T("Analyze");
+            fixMarkedFeatureToolStripMenuItem.Text = Localization.T("Fix");
+            restoreMarkedFeatureToolStripMenuItem.Text = Localization.T("Restore");
+            helpMarkedFeatureToolStripMenuItem.Text = Localization.T("Help");
+            btnFix.Text = Localization.T("Run &Fixer");
+            lblOSInfo.Text = Localization.T("Checking your system..");
+            btnRestore.Text = Localization.T("&Restore");
+            linkUpdateCheck.Text = Localization.T("Check for updates...");
+            btnTools.Text = Localization.T("&Tools");
+            btnFixer.Text = Localization.T("&Fixer");
+            linkSelection.Text = Localization.T("Select all");
+
+            toolTip.SetToolTip(btnGitHub, "오픈소스 프로젝트입니다. 개발 지원이 필요하면 후원 페이지를 확인해 보세요.");
+            toolTip.SetToolTip(lblHeader, "CrapFixer GitHub 페이지 열기");
+            toolTip.SetToolTip(pictureHeader, "CrapFixer GitHub 페이지 열기");
+
+            checkedListBoxApps.Items.Clear();
+            checkedListBoxApps.Items.Add(Localization.T("No analysis yet"));
+        }
+
         // Handles navigation button clicks and switches views accordingly
         private void NavigationHandler_NavigationButtonClicked(Button button)
         {
@@ -117,11 +145,11 @@ namespace CrapFixer
                     .Select(s => s.Trim().ToLower()).ToArray() ?? Array.Empty<string>();
 
                 whitelistPatterns = Array.Empty<string>();
-                Logger.Log("Using built-in bloatware list.", LogLevel.Info);
+                Logger.Log(Localization.T("Using built-in bloatware list."), LogLevel.Info);
             }
             else
             {
-                Logger.Log("🔎 Plugin ready: CFEnhancer (external bloatware list)", LogLevel.Info);
+                Logger.Log(Localization.T("🔎 Plugin ready: CFEnhancer (external bloatware list)"), LogLevel.Info);
             }
 
             // Analyze installed apps based on patterns and whitelist, and optionally scan all
@@ -163,10 +191,8 @@ namespace CrapFixer
         private void btnRestore_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-           "⚠️ This will restore all selected features to their original state.\n" +
-           "Changes made by previous configurations may be reverted.\n\n" +
-           "Are you sure you want to proceed?",
-           "Restore Selected Features",
+           Localization.T("⚠️ This will restore all selected features to their original state.\nChanges made by previous configurations may be reverted.\n\nAre you sure you want to proceed?"),
+           Localization.T("Restore Selected Features"),
            MessageBoxButtons.YesNo,
            MessageBoxIcon.Warning);
 
