@@ -1,41 +1,74 @@
-// read text from clipboard
 async function pasteResult() {
   try {
     const text = await navigator.clipboard.readText();
-    if (!text) {
-      alert("Clipboard is empty");
-      return;
-    }
-    document.getElementById("logInput").value = text;
-    analyzeLog(); // analyze directly!
+    if (!text) return alert("Clipboard is empty");
+    document.getElementById("resultInput").value = text;
+    analyzeResults();
   } catch (err) {
-    alert("No access to clipboard " + err);
+    alert("No access to clipboard: " + err);
   }
 }
 
-// Analyze the pasted log and extract issues, registry keys, and plugin info
-function analyzeLog() {
-  const log = document.getElementById("logInput").value;
-  const output = document.getElementById("output");
-  const lines = log.split("\n");
-
-  const issues = lines.filter((line) => line.startsWith("❌"));
-  const regKeys = lines.filter((line) => line.includes("HKEY_") || line.includes("➤"));
-  const plugins = lines.filter((line) => line.match(/Plugin ready: .*\.ps1/i));
-
-  output.innerHTML = `
-    <h3>🧪 Found ${issues.length} issues</h3>
-    <div>${issues.map((i) => `<div class="issue">${i}</div>`).join("")}</div>
-    <hr>
-    <h3>🗂 Registry Keys</h3>
-    <div>${regKeys.map((k) => `<div class="key">${k}</div>`).join("")}</div>
-    <hr>
-    <h3>📦 Loaded Plugins</h3>
-    <div>${plugins.map((p) => `<div class="plugin">${p}</div>`).join("")}</div>
-  `;
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  })[char]);
 }
 
-// Save screenshot of the output section
+function parseResults(text) {
+  const lines = text.split(/\r?\n/).filter((line) => line.length);
+  if (lines[0] !== "CRAPFIXER_RESULTS_V1")
+    throw new Error("This is not a CrapFixer V1 result export.");
+
+  const data = { meta: {}, summary: null, results: [], registry: [] };
+  for (const line of lines.slice(1)) {
+    const parts = line.split("\t");
+    if (parts[0] === "META" && parts.length >= 3)
+      data.meta[parts[1]] = parts.slice(2).join(" ");
+    else if (parts[0] === "SUMMARY" && parts.length >= 4)
+      data.summary = { total: Number(parts[1]), issues: Number(parts[2]), ok: Number(parts[3]) };
+    else if (parts[0] === "RESULT" && parts.length >= 5)
+      data.results.push({ kind: parts[1], name: parts[2], status: parts[3], current: parts.slice(4).join(" ") });
+    else if (parts[0] === "REGISTRY" && parts.length >= 4)
+      data.registry.push({ tweak: parts[1], path: parts[2], recommended: parts.slice(3).join(" ") });
+  }
+  return data;
+}
+
+function resultRows(items, cssName) {
+  if (!items.length) return "<p>None.</p>";
+  return items.map((item) => `
+    <div class="${cssName}"><strong>${safe(item.name)}</strong><br>
+    Status: ${safe(item.status)} &nbsp; Current: <code>${safe(item.current)}</code></div>`).join("");
+}
+
+function analyzeResults() {
+  const output = document.getElementById("output");
+  try {
+    const data = parseResults(document.getElementById("resultInput").value.trim());
+    const issues = data.results.filter((item) => item.kind === "ISSUE");
+    const healthy = data.results.filter((item) => item.kind === "OK");
+    const summary = data.summary || { total: data.results.length, issues: issues.length, ok: healthy.length };
+
+    output.innerHTML = `
+      <h3>CrapFixer ${safe(data.meta.Version || "")} results</h3>
+      <p>${summary.total} checked &nbsp; ${summary.issues} issues &nbsp; ${summary.ok} correctly configured</p>
+      <h3>Issues</h3>
+      ${resultRows(issues, "issue")}
+      <hr>
+      <h3>Correctly configured</h3>
+      ${resultRows(healthy, "healthy")}
+      <hr>
+      <h3>Registry details</h3>
+      ${data.registry.length ? data.registry.map((entry) => `
+        <div class="key"><strong>${safe(entry.tweak)}</strong><br>${safe(entry.path)}<br>
+        Recommended: <code>${safe(entry.recommended)}</code></div>`).join("") : "<p>None.</p>"}
+    `;
+  } catch (err) {
+    output.innerHTML = `<div class="issue"><strong>Could not read the results.</strong><br>${safe(err.message)}</div>`;
+  }
+}
+
 function captureResult() {
   html2canvas(document.getElementById("output")).then((canvas) => {
     const link = document.createElement("a");
@@ -45,42 +78,20 @@ function captureResult() {
   });
 }
 
-// Native share (for mobile browsers)
 function shareResult() {
   const text = document.getElementById("output").innerText;
-  if (navigator.share) {
-    navigator
-      .share({
-        title: "CrapFixer Analysis Results",
-        text: text,
-      })
-      .catch((err) => console.log("Share failed:", err));
-  } else {
-    alert("Sharing is not supported by your browser.");
-  }
+  if (navigator.share) navigator.share({ title: "CrapFixer Analysis Results", text }).catch(() => {});
+  else alert("Sharing is not supported by your browser.");
 }
 
-// Share the result as an image on Twitter/X
 function shareOnTwitter() {
-  const outputEl = document.getElementById("output");
-  if (!outputEl.innerText.trim()) return alert("No results to share yet.");
-
-  // Create screenshot from result div
-  html2canvas(outputEl).then((canvas) => {
-    const dataUrl = canvas.toDataURL("image/png");
-
-    // Convert image to base64 string (can't upload directly to Twitter)
-    // Instead, show preview and user uploads manually via prompt
+  const output = document.getElementById("output");
+  if (!output.innerText.trim()) return alert("No results to share yet.");
+  html2canvas(output).then((canvas) => {
     const win = window.open();
-    win.document.write(`<h2>📷 Screenshot ready for X / Twitter</h2>`);
-    win.document.write(
-      `<p>Right-click the image below and save it to upload on Twitter manually.</p>`
-    );
-    win.document.write(
-      `<img src="${dataUrl}" style="max-width:100%;border:1px solid #ccc;" />`
-    );
-    win.document.write(
-      `<p><a href="https://twitter.com/intent/tweet?text=Check%20out%20my%20CrapFixer%20analysis!&hashtags=CrapFixer,loganalyzer" target="_blank">➡️ Click here to post on X</a></p>`
-    );
+    win.document.write("<h2>Screenshot ready for X</h2>");
+    win.document.write("<p>Save the image and attach it to your post.</p>");
+    win.document.write(`<img src="${canvas.toDataURL("image/png")}" style="max-width:100%;border:1px solid #ccc;" />`);
+    win.document.write('<p><a href="https://twitter.com/intent/tweet?text=Check%20out%20my%20CrapFixer%20analysis!&hashtags=CrapFixer" target="_blank">Post on X</a></p>');
   });
 }

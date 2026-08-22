@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>CrapFixer Log Analyzer</title>
+    <title>CrapFixer Results Analyzer</title>
     <style>
       /* ---------- Basic Styles ---------- */
       body {
@@ -89,9 +89,14 @@
         color: #c62828;
         margin-bottom: 0.5rem;
       }
+      .healthy {
+        color: #2e7d32;
+        margin-bottom: 0.5rem;
+      }
       .key {
         color: #37474f;
         font-family: monospace;
+        margin-bottom: 0.75rem;
       }
       .plugin {
         color: #1565c0;
@@ -106,7 +111,7 @@
   <body>
     <!-- ---------- HEADER SECTION ---------- -->
     <header>
-      <h1>🧠 CrapFixer Log Analyzer</h1>
+      <h1>🧠 CrapFixer Results Analyzer</h1>
       <div class="actions">
         <a href="https://github.com/builtbybel/CrapFixer" target="_blank">GitHub</a>
         <a href="https://www.paypal.com/donate/?hosted_button_id=M9DW4VNKH9ECQ" target="_blank"
@@ -120,18 +125,18 @@
     <main>
       <p><strong>How it works:</strong></p>
       <ol>
-        <li>Run the analysis in CrapFixer and <strong>copy the full log</strong>.</li>
-        <li>Paste it into the box below.</li>
-        <li>Click <strong>Analyze</strong> to get results.</li>
+        <li>Run an analysis in CrapFixer.</li>
+        <li>Choose <strong>Result actions &gt; Analyze results online</strong>.</li>
+        <li>Paste the copied results below.</li>
       </ol>
 
-      <!-- ---------- LOG INPUT ---------- -->
-      <textarea id="logInput" placeholder="Drop your CrapFixer log here..."></textarea>
+      <!-- ---------- RESULTS INPUT ---------- -->
+      <textarea id="resultInput" placeholder="Paste CRAPFIXER_RESULTS_V1 data here..."></textarea>
 
       <!-- ---------- BUTTONS ---------- -->
       <div class="btn-group">
-        <button onclick="pasteResult()">📋 Paste log from clipboard</button>
-        <button onclick="analyzeLog()">🔍 Analyze</button>
+        <button onclick="pasteResult()">📋 Paste results from clipboard</button>
+        <button onclick="analyzeResults()">🔍 Analyze</button>
         <button onclick="captureResult()">📸 Take Screenshot</button>
         <button onclick="shareResult()">📤 Share</button>
         <button onclick="shareOnTwitter()">🐦 Share on X</button>
